@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>حاسبة المعدل الذكية - ENS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --gold: #c49a6c;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --dark: #2c3e50;
+            --bg: #f4f7f6;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            margin: 0; background: var(--bg); color: var(--dark);
+            padding-bottom: 40px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--gold), #a67c52);
+            padding: 20px; color: white; display: flex; align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000;
+        }
+        .back-link { color: white; text-decoration: none; font-size: 1.2rem; margin-left: 15px; cursor: pointer; }
+
+        .container { max-width: 500px; margin: auto; padding: 15px; }
+
+        .step-card {
+            background: white; border-radius: 20px; padding: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 20px;
+            border-bottom: 4px solid var(--gold);
+        }
+
+        select {
+            width: 100%; padding: 15px; border-radius: 12px; border: 2px solid #eee;
+            font-family: 'Cairo'; font-weight: 700; font-size: 1rem; appearance: none;
+            background: #fafafa;
+        }
+
+        .module-item {
+            background: white; border-radius: 18px; padding: 18px; margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.04); border: 1px solid #edf2f7;
+            transition: 0.3s;
+        }
+        .module-item:focus-within { border-color: var(--gold); transform: translateY(-2px); }
+
+        .module-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .module-name { font-weight: 900; font-size: 1rem; color: #34495e; }
+        
+        .coeff-tag {
+            background: #fff8ee; color: var(--gold); padding: 4px 12px;
+            border-radius: 8px; font-size: 0.8rem; font-weight: 800; border: 1px solid #ffe8cc;
+        }
+
+        .input-grid { display: flex; gap: 12px; }
+        .input-field { flex: 1; }
+        .input-field label { display: block; font-size: 0.75rem; color: #7f8c8d; margin-bottom: 6px; font-weight: 700; }
+        
+        .mark-input {
+            width: 100%; padding: 12px; border: 2px solid #f1f1f1; border-radius: 12px;
+            text-align: center; font-family: 'Cairo'; font-weight: 800; font-size: 1.1rem;
+            transition: 0.3s; background: #fdfdfd; box-sizing: border-box;
+        }
+        
+        .mark-input.pass { border-color: var(--success); background: #f0fff4; }
+        .mark-input.fail { border-color: var(--danger); background: #fff5f5; }
+
+        .calc-btn {
+            width: 100%; padding: 18px; background: var(--dark); color: white;
+            border: none; border-radius: 15px; font-size: 1.2rem; font-weight: 800;
+            cursor: pointer; transition: 0.3s; box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            font-family: 'Cairo'; margin-top: 20px;
+        }
+
+        /* نافذة النتائج الاحترافية (بدون إيموجي) */
+        .result-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+            z-index: 2000; align-items: center; justify-content: center; padding: 20px;
+            backdrop-filter: blur(8px);
+        }
+        
+        .result-card {
+            background: white; width: 100%; max-width: 400px; border-radius: 30px;
+            padding: 30px; text-align: center; position: relative;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .result-header-icon { 
+            font-size: 3.5rem; margin-bottom: 15px; 
+            width: 80px; height: 80px; line-height: 80px;
+            margin: 0 auto 15px; border-radius: 50%;
+        }
+        
+        .icon-success { color: var(--success); background: #f0fff4; border: 2px solid var(--success); }
+        .icon-fail { color: var(--danger); background: #fff5f5; border: 2px solid var(--danger); }
+
+        .avg-circle { font-size: 3.5rem; font-weight: 900; margin: 10px 0; }
+        .res-pass { color: var(--success); }
+        .res-fail { color: var(--danger); }
+
+        .category-pill {
+            display: flex; justify-content: space-between; padding: 12px;
+            border-radius: 12px; margin-bottom: 8px; font-weight: 700; font-size: 0.9rem;
+        }
+
+        .alert-item {
+            background: #fff5f5; color: #c53030; padding: 12px; border-radius: 12px;
+            margin-top: 10px; font-size: 0.85rem; border-right: 5px solid #c53030; 
+            text-align: right; display: flex; align-items: center; gap: 10px;
+        }
+
+        .close-btn {
+            margin-top: 25px; width: 100%; padding: 15px; border-radius: 15px;
+            border: none; background: var(--dark); color: white; font-weight: 800; 
+            font-family: 'Cairo'; cursor: pointer; font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="back-link" onclick="window.history.back()"><i class="fa-solid fa-arrow-right"></i></div>
+    <h1 style="flex:1; margin:0; text-align:center; font-size: 1.1rem; font-weight: 800;">حاسبة المعدل الأكاديمية</h1>
+</header>
+
+<div class="container">
+    <div class="step-card">
+        <label style="display:block; margin-bottom:10px; font-weight:800; color:var(--gold)">
+            <i class="fa-solid fa-calendar-check" style="margin-left: 5px;"></i> اختيار السداسي:
+        </label>
+        <select id="sem-select" onchange="loadModules()">
+            <option value="">-- اضغط للاختيار --</option>
+            <option value="S1">السداسي الأول (S1)</option>
+            <option value="S2">السداسي الثاني (S2)</option>
+        </select>
+    </div>
+
+    <div id="modules-list"></div>
+
+    <button id="calc-trigger" class="calc-btn" style="display:none;" onclick="runCalculation()">
+        <i class="fa-solid fa-calculator" style="margin-left: 10px;"></i> معالجة النتائج
+    </button>
+</div>
+
+<div id="result-modal" class="result-overlay">
+    <div class="result-card">
+        <div id="res-icon-box" class="result-header-icon">
+            <i id="res-icon-fa" class="fa-solid"></i>
+        </div>
+        
+        <div id="res-status" style="font-weight: 900; font-size: 1.5rem; margin-bottom: 5px;"></div>
+        <div id="res-avg" class="avg-circle"></div>
+        
+        <div style="margin: 20px 0;">
+            <div class="category-pill" style="background:#f0fff4; color:#276749; border: 1px solid #c6f6d5;">
+                <span><i class="fa-solid fa-book-open"></i> مواد التخصص</span>
+                <span id="res-major">--</span>
+            </div>
+            <div class="category-pill" style="background:#ebf8ff; color:#2b6cb0; border: 1px solid #bee3f8;">
+                <span><i class="fa-solid fa-flask"></i> مواد الفئة الثانية</span>
+                <span id="res-minor">--</span>
+            </div>
+        </div>
+
+        <div id="res-alerts"></div>
+
+        <button class="close-btn" onclick="document.getElementById('result-modal').style.display='none'">
+            العودة للتصحيح
+        </button>
+    </div>
+</div>
+
+<script>
+    const mods = [
+        { n: "النحو العربي", t: "mix", c: 3, cat: "major" },
+        { n: "الصرف العربي", t: "mix", c: 3, cat: "major" },
+        { n: "الرياضيات", t: "mix", c: 2, cat: "major" },
+        { n: "الفيزياء", t: "mix", c: 2, cat: "major" },
+        { n: "الكيمياء", t: "mix", c: 2, cat: "major" },
+        { n: "الأدب العربي", t: "mix", c: 2, cat: "major" },
+        { n: "فنيات الكتابة والتعبير", t: "mix", c: 2, cat: "major" },
+        { id: 'info', n: "إعلام آلي", t: "mix", c: 2, cat: "minor", s1: "تكنولوجيا الإعلام" },
+        { n: "البلاغة العربية", t: "td", c: 2, cat: "major" },
+        { id: 'khat', n: "الخط العربي", t: "td", c: 2, cat: "major", s1: "إملاء" },
+        { n: "لغة إنجليزية", t: "td", c: 1, cat: "minor" },
+        { n: "التربية الإسلامية", t: "lec", c: 3, cat: "major" }
+    ];
+
+    function loadModules() {
+        const s = document.getElementById('sem-select').value;
+        const list = document.getElementById('modules-list');
+        const btn = document.getElementById('calc-trigger');
+        if(!s) { list.innerHTML=''; btn.style.display='none'; return; }
+        
+        btn.style.display='block';
+        list.innerHTML = mods.map((m, i) => {
+            let name = (s==='S1' && m.s1) ? m.s1 : m.n;
+            return `
+                <div class="module-item">
+                    <div class="module-info">
+                        <span class="module-name">${name}</span>
+                        <div class="coeff-tag">م: <input type="number" value="${m.c}" id="c_${i}" style="width:25px; border:none; background:none; font-weight:800; color:var(--gold)"></div>
+                    </div>
+                    <div class="input-grid">
+                        ${(m.t==='mix'||m.t==='lec') ? `
+                            <div class="input-field">
+                                <label>المحاضرة</label>
+                                <input type="number" step="0.25" class="mark-input" id="l_${i}" placeholder="0.0" oninput="validateInput(this)">
+                            </div>` : ''}
+                        ${(m.t==='mix'||m.t==='td') ? `
+                            <div class="input-field">
+                                <label>التطبيق</label>
+                                <input type="number" step="0.25" class="mark-input" id="t_${i}" placeholder="0.0" oninput="validateInput(this)">
+                            </div>` : ''}
+                    </div>
+                </div>`;
+        }).join('');
+    }
+
+    function validateInput(el) {
+        let v = parseFloat(el.value);
+        if(v < 10) { el.classList.add('fail'); el.classList.remove('pass'); }
+        else if(v >= 10) { el.classList.add('pass'); el.classList.remove('fail'); }
+        else { el.classList.remove('pass', 'fail'); }
+    }
+
+    function runCalculation() {
+        let ts=0, tc=0, mas=0, mac=0, mis=0, mic=0, elims=[];
+
+        mods.forEach((m, i) => {
+            let c = parseFloat(document.getElementById(`c_${i}`).value) || 0;
+            let l = parseFloat(document.getElementById(`l_${i}`)?.value) || 0;
+            let t = parseFloat(document.getElementById(`t_${i}`)?.value) || 0;
+            let avg = (m.t==='mix') ? ((l*2)+t)/3 : (m.t==='td'?t:l);
+
+            if(avg < 5) elims.push(mods[i].n);
+            ts += (avg*c); tc += c;
+            if(m.cat==='major') { mas+=(avg*c); mac+=c; }
+            else { mis+=(avg*c); mic+=c; }
+        });
+
+        const fAvg = (ts/tc).toFixed(2);
+        const maAvg = (mas/mac).toFixed(2);
+        const miAvg = (mis/mic).toFixed(2);
+        const isPass = fAvg >= 10 && maAvg >= 10 && miAvg >= 10 && elims.length === 0;
+        
+        const iconBox = document.getElementById('res-icon-box');
+        const iconFa = document.getElementById('res-icon-fa');
+        const status = document.getElementById('res-status');
+        const avgDisplay = document.getElementById('res-avg');
+
+        avgDisplay.innerText = fAvg;
+        avgDisplay.className = 'avg-circle ' + (isPass ? 'res-pass' : 'res-fail');
+        
+        if(isPass) {
+            iconBox.className = 'result-header-icon icon-success';
+            iconFa.className = 'fa-solid fa-graduation-cap';
+            status.innerText = 'ناجح بمستوى جيد';
+            status.style.color = 'var(--success)';
+        } else {
+            iconBox.className = 'result-header-icon icon-fail';
+            iconFa.className = 'fa-solid fa-triangle-exclamation';
+            status.innerText = 'معني بالاستدراك';
+            status.style.color = 'var(--danger)';
+        }
+
+        document.getElementById('res-major').innerText = maAvg;
+        document.getElementById('res-minor').innerText = miAvg;
+
+        let alertsHtml = "";
+        if(elims.length > 0) alertsHtml += `<div class="alert-item"><i class="fa-solid fa-circle-xmark"></i> إقصاء في: ${elims.join('، ')}</div>`;
+        if(maAvg < 10 || miAvg < 10) alertsHtml += `<div class="alert-item"><i class="fa-solid fa-chart-line"></i> فشل تعويض بين الفئات.</div>`;
+        
+        document.getElementById('res-alerts').innerHTML = alertsHtml;
+        document.getElementById('result-modal').style.display = 'flex';
+    }
+</script>
+</body>
+</html>
