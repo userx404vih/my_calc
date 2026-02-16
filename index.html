@@ -188,10 +188,10 @@
         { n: "الأدب العربي", t: "mix", c: 2, cat: "major" },
         { n: "فنيات الكتابة والتعبير", t: "mix", c: 1, cat: "major" },
         { id: 'info', n: "إعلام آلي", t: "mix", c: 1, cat: "minor", s1: "تكنولوجيا الإعلام" },
-        { n: "البلاغة العربية", t: "td", c: 1, cat: "major" },
-        { id: 'khat', n: "الخط العربي", t: "td", c: 1, cat: "major", s1: "إملاء" },
-        { n: "لغة إنجليزية", t: "td", c: 1, cat: "minor" },
-        { n: "التربية الإسلامية", t: "lec", c: 2, cat: "major" }
+        { n: "البلاغة العربية", t: "mix", c: 1, cat: "major" },
+        { id: 'khat', n: "الخط العربي", t: "mix", c: 1, cat: "major", s1: "إملاء" },
+        { n: "لغة إنجليزية", t: "mix", c: 1, cat: "minor" },
+        { n: "التربية الإسلامية", t: "mix", c: 2, cat: "major" }
     ];
 
     function loadModules() {
@@ -263,7 +263,7 @@
         if(isPass) {
             iconBox.className = 'result-header-icon icon-success';
             iconFa.className = 'fa-solid fa-graduation-cap';
-            status.innerText = 'ناجح';
+            status.innerText = 'ناجح بمستوى جيد';
             status.style.color = 'var(--success)';
         } else {
             iconBox.className = 'result-header-icon icon-fail';
